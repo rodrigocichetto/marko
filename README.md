@@ -1,4 +1,6 @@
-# Screen Annotator
+# Marko
+
+![Marko](screenshot.png)
 
 A cross-platform desktop application for drawing annotations directly on top of your screen. Built with Electron, this tool is perfect for live presentations, online classes, demos, and screen recordings.
 
@@ -7,6 +9,7 @@ A cross-platform desktop application for drawing annotations directly on top of 
 ## Features
 
 ### Drawing Tools
+
 - **Pen** - Freehand drawing
 - **Rectangle** - Draw rectangles and squares
 - **Circle/Ellipse** - Draw circles and ellipses
@@ -16,6 +19,7 @@ A cross-platform desktop application for drawing annotations directly on top of 
 - **Eraser** - Erase annotations
 
 ### Toolbar Features
+
 - Draggable toolbar (drag from any empty area)
 - Always stays on top of other windows
 - Hide from screen recordings (toolbar hidden, annotations visible)
@@ -25,27 +29,28 @@ A cross-platform desktop application for drawing annotations directly on top of 
 
 ### Keyboard Shortcuts
 
-| Shortcut | Action |
-|----------|--------|
-| `Ctrl+Shift+P` | Pen tool |
-| `Ctrl+Shift+R` | Rectangle tool |
-| `Ctrl+Shift+O` | Circle/Ellipse tool |
-| `Ctrl+Shift+A` | Arrow tool |
-| `Ctrl+Shift+L` | Line tool |
-| `Ctrl+Shift+I` | Laser Pointer |
-| `Ctrl+Shift+E` | Eraser tool |
-| `Ctrl+Shift+D` | Toggle drawing mode |
-| `Ctrl+Shift+C` | Clear canvas |
+| Shortcut       | Action                    |
+| -------------- | ------------------------- |
+| `Ctrl+Shift+P` | Pen tool                  |
+| `Ctrl+Shift+R` | Rectangle tool            |
+| `Ctrl+Shift+O` | Circle/Ellipse tool       |
+| `Ctrl+Shift+A` | Arrow tool                |
+| `Ctrl+Shift+L` | Line tool                 |
+| `Ctrl+Shift+I` | Laser Pointer             |
+| `Ctrl+Shift+E` | Eraser tool               |
+| `Ctrl+Shift+D` | Toggle drawing mode       |
+| `Ctrl+Shift+C` | Clear canvas              |
 | `Ctrl+Shift+H` | Toggle overlay visibility |
-| `Ctrl+Shift+T` | Show/focus toolbar |
-| `Ctrl+Z` | Undo |
-| `Ctrl+Shift+Z` | Redo |
+| `Ctrl+Shift+T` | Show/focus toolbar        |
+| `Ctrl+Z`       | Undo                      |
+| `Ctrl+Shift+Z` | Redo                      |
 
-*On macOS, use `Cmd` instead of `Ctrl`*
+_On macOS, use `Cmd` instead of `Ctrl`_
 
 ## Installation
 
 ### Prerequisites
+
 - Node.js (v16 or higher)
 - npm
 
@@ -104,6 +109,7 @@ Built packages will be available in the `dist` folder.
 ## System Tray
 
 The application runs in the system tray with quick access to:
+
 - Show Toolbar
 - Toggle Drawing
 - Show/Hide Overlay
