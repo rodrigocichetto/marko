@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Screen Annotator - Overlay</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: transparent;
+    }
+
+    #canvas-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: auto;
+    }
+
+    #drawing-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      touch-action: none;
+    }
+
+    .drawing-disabled {
+      pointer-events: none;
+    }
+
+    /* Laser pointer effect */
+    #laser-pointer {
+      position: fixed;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,0,0,1) 0%, rgba(255,0,0,0.5) 50%, rgba(255,0,0,0) 100%);
+      pointer-events: none;
+      display: none;
+      transform: translate(-50%, -50%);
+      z-index: 9999;
+      box-shadow: 0 0 10px 5px rgba(255, 0, 0, 0.5);
+    }
+
+    #laser-pointer.active {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div id="canvas-container" class="drawing-disabled">
+    <canvas id="drawing-canvas"></canvas>
+    <div id="laser-pointer"></div>
+  </div>
+  <script src="drawing-engine.js"></script>
+</body>
+</html>

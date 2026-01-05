@@ -1,0 +1,40 @@
+{
+  "name": "screen-annotator",
+  "version": "1.0.0",
+  "description": "Cross-platform screen annotation tool with Excalidraw-like drawing tools",
+  "main": "src/main/main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder",
+    "build:mac": "electron-builder --mac",
+    "build:win": "electron-builder --win",
+    "build:linux": "electron-builder --linux"
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.1"
+  },
+  "build": {
+    "appId": "com.screenannotator.app",
+    "productName": "Screen Annotator",
+    "directories": {
+      "output": "dist"
+    },
+    "mac": {
+      "category": "public.app-category.productivity",
+      "target": ["dmg", "zip"],
+      "extendInfo": {
+        "NSAppleEventsUsageDescription": "Screen Annotator needs accessibility access for overlay functionality."
+      }
+    },
+    "win": {
+      "target": ["nsis", "portable"]
+    },
+    "linux": {
+      "target": ["AppImage", "deb"],
+      "category": "Utility"
+    }
+  }
+}
