@@ -6,6 +6,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   selectTool: (tool) => ipcRenderer.send('tool-selected', tool),
   selectColor: (color) => ipcRenderer.send('color-selected', color),
   selectStrokeWidth: (width) => ipcRenderer.send('stroke-width-selected', width),
+  selectTextMode: (mode) => ipcRenderer.send('text-mode-selected', mode),
   clearCanvas: () => ipcRenderer.send('clear-canvas'),
   undo: () => ipcRenderer.send('undo'),
   redo: () => ipcRenderer.send('redo'),
@@ -48,5 +49,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
   },
   onToolSelectedSync: (callback) => {
     ipcRenderer.on('tool-selected-sync', (event, tool) => callback(tool));
+  },
+  onTextModeChanged: (callback) => {
+    ipcRenderer.on('text-mode-changed', (event, mode) => callback(mode));
+  },
+  onTextModeSync: (callback) => {
+    ipcRenderer.on('text-mode-sync', (event, mode) => callback(mode));
   }
 });

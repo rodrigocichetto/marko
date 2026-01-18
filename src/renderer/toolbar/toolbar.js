@@ -6,7 +6,6 @@ class ToolbarController {
     this.currentStrokeWidth = 4;
     this.drawingEnabled = false; // Disabled until a tool is selected
     this.hideFromCapture = true;
-
     this.init();
   }
 

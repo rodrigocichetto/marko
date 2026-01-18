@@ -12,6 +12,7 @@ class DrawingEngine {
     this.currentColor = '#ff0000';
     this.currentStrokeWidth = 3;
     this.drawingEnabled = false; // Disabled until a tool is selected
+    this.textInput = null; // Active text input element
 
     // History for undo/redo
     this.history = [];
@@ -109,6 +110,13 @@ class DrawingEngine {
   }
 
   setTool(tool) {
+    // Finalize any pending text before switching tools
+    const wasTextTool = this.currentTool === 'text-standard' || this.currentTool === 'text-highlight';
+    const isTextTool = tool === 'text-standard' || tool === 'text-highlight';
+    if (wasTextTool && !isTextTool) {
+      this.finalizeText();
+    }
+
     this.currentTool = tool;
     this.updateCursor();
 
@@ -139,6 +147,8 @@ class DrawingEngine {
     if (!enabled) {
       this.container.classList.add('drawing-disabled');
       this.laserPointer.classList.remove('active');
+      // Remove any active text input when drawing is disabled
+      this.removeTextInput();
     } else {
       this.container.classList.remove('drawing-disabled');
     }
@@ -162,6 +172,10 @@ class DrawingEngine {
         break;
       case 'pointer':
         this.canvas.style.cursor = 'pointer';
+        break;
+      case 'text-standard':
+      case 'text-highlight':
+        this.canvas.style.cursor = 'text';
         break;
       case 'eraser':
         // Create eraser cursor as encoded SVG
@@ -202,8 +216,19 @@ class DrawingEngine {
   handlePointerDown(e) {
     if (!this.drawingEnabled || !this.currentTool || e.button !== 0) return;
 
-    this.isDrawing = true;
     const point = this.getPoint(e);
+
+    // Handle text tools separately
+    if (this.currentTool === 'text-standard' || this.currentTool === 'text-highlight') {
+      // If clicking elsewhere while text input is active, finalize the text
+      if (this.textInput) {
+        this.finalizeText();
+      }
+      this.createTextInput(point);
+      return;
+    }
+
+    this.isDrawing = true;
     this.startPoint = point;
     this.currentPath = [point];
 
@@ -390,8 +415,8 @@ class DrawingEngine {
     // Remove any states after current index (for redo functionality)
     this.history = this.history.slice(0, this.historyIndex + 1);
 
-    // Save current canvas state
-    const imageData = this.canvas.toDataURL();
+    // Save current canvas state using ImageData (synchronous)
+    const imageData = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
     this.history.push(imageData);
 
     // Limit history size
@@ -403,13 +428,9 @@ class DrawingEngine {
   }
 
   redrawFromHistory() {
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     if (this.historyIndex >= 0 && this.history[this.historyIndex]) {
-      const img = new Image();
-      img.src = this.history[this.historyIndex];
-      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-      this.ctx.drawImage(img, 0, 0);
-    } else {
-      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      this.ctx.putImageData(this.history[this.historyIndex], 0, 0);
     }
   }
 
@@ -432,7 +453,164 @@ class DrawingEngine {
 
   clearCanvas() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.removeTextInput();
     this.saveState();
+  }
+
+  // Text tool methods
+  createTextInput(point) {
+    // Remove any existing text input first
+    this.removeTextInput();
+
+    const fontSize = Math.max(16, this.currentStrokeWidth * 6);
+    const isHighlight = this.currentTool === 'text-highlight';
+
+    // Create text input element
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'text-input';
+    input.style.cssText = `
+      position: absolute;
+      left: ${point.x}px;
+      top: ${point.y - fontSize / 2}px;
+      font-size: ${fontSize}px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-weight: bold;
+      color: ${isHighlight ? this.getContrastColor(this.currentColor) : this.currentColor};
+      background: ${isHighlight ? this.currentColor : 'transparent'};
+      border: 2px dashed ${this.currentColor};
+      border-radius: 4px;
+      padding: 4px 8px;
+      outline: none;
+      min-width: 100px;
+      z-index: 1000;
+    `;
+
+    // Store the position and settings for later use
+    input.dataset.x = point.x;
+    input.dataset.y = point.y;
+    input.dataset.fontSize = fontSize;
+    input.dataset.isHighlight = isHighlight;
+    input.dataset.color = this.currentColor;
+
+    // Flag to prevent immediate blur
+    let isInitializing = true;
+
+    // Add event listeners
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        this.finalizeText();
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        this.removeTextInput();
+      }
+    });
+
+    input.addEventListener('blur', () => {
+      // Ignore blur during initialization
+      if (isInitializing) return;
+
+      // Small delay to allow for click events to be processed
+      setTimeout(() => {
+        if (this.textInput === input) {
+          this.finalizeText();
+        }
+      }, 150);
+    });
+
+    // Prevent mousedown from triggering blur
+    input.addEventListener('mousedown', (e) => {
+      e.stopPropagation();
+    });
+
+    this.container.appendChild(input);
+    this.textInput = input;
+
+    // Use requestAnimationFrame to ensure DOM is ready before focusing
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        if (this.textInput === input) {
+          input.focus();
+          // Allow blur events after initialization
+          setTimeout(() => {
+            isInitializing = false;
+          }, 200);
+        }
+      });
+    });
+  }
+
+  finalizeText() {
+    if (!this.textInput || !this.textInput.value.trim()) {
+      this.removeTextInput();
+      return;
+    }
+
+    const text = this.textInput.value;
+    const x = parseFloat(this.textInput.dataset.x);
+    const y = parseFloat(this.textInput.dataset.y);
+    const fontSize = parseFloat(this.textInput.dataset.fontSize);
+    const isHighlight = this.textInput.dataset.isHighlight === 'true';
+    const color = this.textInput.dataset.color;
+
+    this.drawText(text, x, y, fontSize, isHighlight, color);
+    this.removeTextInput();
+    this.saveState();
+  }
+
+  removeTextInput() {
+    if (this.textInput) {
+      this.textInput.remove();
+      this.textInput = null;
+    }
+  }
+
+  drawText(text, x, y, fontSize, isHighlight, color) {
+    this.ctx.font = `bold ${fontSize}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`;
+    this.ctx.textBaseline = 'middle';
+
+    // Measure text for background
+    const metrics = this.ctx.measureText(text);
+    const textWidth = metrics.width;
+    const textHeight = fontSize;
+    const padding = 8;
+
+    if (isHighlight) {
+      // Draw background rectangle
+      this.ctx.fillStyle = color;
+      this.ctx.beginPath();
+      this.ctx.roundRect(
+        x - padding,
+        y - textHeight / 2 - padding / 2,
+        textWidth + padding * 2,
+        textHeight + padding,
+        4
+      );
+      this.ctx.fill();
+
+      // Draw text with contrast color
+      this.ctx.fillStyle = this.getContrastColor(color);
+      this.ctx.fillText(text, x, y);
+    } else {
+      // Draw only the text in the selected color
+      this.ctx.fillStyle = color;
+      this.ctx.fillText(text, x, y);
+    }
+  }
+
+  getContrastColor(hexColor) {
+    // Convert hex to RGB
+    const hex = hexColor.replace('#', '');
+    const r = parseInt(hex.substr(0, 2), 16);
+    const g = parseInt(hex.substr(2, 2), 16);
+    const b = parseInt(hex.substr(4, 2), 16);
+
+    // Calculate luminance
+    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+
+    // Return black or white based on luminance
+    return luminance > 0.5 ? '#000000' : '#ffffff';
   }
 }
 

@@ -133,6 +133,13 @@ function setupIPC() {
     }
   });
 
+  // Text mode selection
+  ipcMain.on('text-mode-selected', (event, mode) => {
+    if (overlayWindow) {
+      overlayWindow.webContents.send('text-mode-changed', mode);
+    }
+  });
+
   // Clear canvas
   ipcMain.on('clear-canvas', () => {
     if (overlayWindow) {
@@ -209,7 +216,9 @@ function setupGlobalShortcuts() {
     'A': 'arrow',
     'L': 'line',
     'I': 'pointer',     // I for pointer
-    'E': 'eraser'
+    'E': 'eraser',
+    'T': 'text-standard',    // T for standard text
+    'Y': 'text-highlight'    // Y for highlight text
   };
 
   Object.entries(toolShortcuts).forEach(([key, tool]) => {
