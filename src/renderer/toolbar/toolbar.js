@@ -6,6 +6,7 @@ class ToolbarController {
     this.currentStrokeWidth = 4;
     this.drawingEnabled = false; // Disabled until a tool is selected
     this.hideFromCapture = true;
+    this.currentTheme = 'system'; // 'light', 'dark', or 'system'
     this.init();
   }
 
@@ -14,13 +15,75 @@ class ToolbarController {
     if (window.electronAPI) {
       const settings = await window.electronAPI.getSettings();
       this.hideFromCapture = settings.hideToolbarFromCapture;
+      if (settings.theme) {
+        this.currentTheme = settings.theme;
+      }
       this.updateToggleStates();
     }
+
+    // Initialize theme
+    this.initTheme();
 
     this.bindEvents();
     this.setupDrag();
     this.setupKeyboardShortcuts();
     this.setupIPC();
+  }
+
+  initTheme() {
+    // Check for saved theme preference or use system preference
+    const savedTheme = localStorage.getItem('toolbar-theme');
+
+    if (savedTheme) {
+      this.currentTheme = savedTheme;
+    }
+
+    // Apply the current theme
+    if (this.currentTheme === 'system') {
+      this.applySystemTheme();
+    } else {
+      this.applyTheme(this.currentTheme);
+    }
+
+    // Listen for system theme changes
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+      if (this.currentTheme === 'system') {
+        this.applySystemTheme();
+      }
+    });
+  }
+
+  applySystemTheme() {
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    this.applyTheme(prefersDark ? 'dark' : 'light');
+  }
+
+  applyTheme(theme) {
+    if (theme === 'light') {
+      document.documentElement.setAttribute('data-theme', 'light');
+    } else {
+      document.documentElement.removeAttribute('data-theme');
+    }
+  }
+
+  setTheme(theme) {
+    this.currentTheme = theme;
+
+    // Save preference
+    localStorage.setItem('toolbar-theme', theme);
+
+    // Apply theme
+    if (theme === 'system') {
+      this.applySystemTheme();
+    } else {
+      this.applyTheme(theme);
+    }
+  }
+
+  openSettings() {
+    if (window.electronAPI) {
+      window.electronAPI.openSettings();
+    }
   }
 
   bindEvents() {
@@ -62,6 +125,11 @@ class ToolbarController {
 
     document.getElementById('hide-capture-toggle').addEventListener('click', () => {
       this.toggleHideFromCapture();
+    });
+
+    // Settings button
+    document.getElementById('settings-btn').addEventListener('click', () => {
+      this.openSettings();
     });
 
     // Close button
@@ -141,6 +209,17 @@ class ToolbarController {
         document.querySelectorAll('.tool-btn').forEach(btn => {
           btn.classList.toggle('active', btn.dataset.tool === tool);
         });
+      });
+
+      // Sync theme from settings window
+      window.electronAPI.onThemeSync((theme) => {
+        this.currentTheme = theme;
+        localStorage.setItem('toolbar-theme', theme);
+        if (theme === 'system') {
+          this.applySystemTheme();
+        } else {
+          this.applyTheme(theme);
+        }
       });
     }
   }

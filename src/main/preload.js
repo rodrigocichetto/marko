@@ -16,6 +16,12 @@ contextBridge.exposeInMainWorld('electronAPI', {
   moveToolbar: (delta) => ipcRenderer.send('move-toolbar', delta),
   quitApp: () => ipcRenderer.send('quit-app'),
 
+  // Settings window
+  openSettings: () => ipcRenderer.send('open-settings'),
+  closeSettingsWindow: () => ipcRenderer.send('close-settings-window'),
+  setTheme: (theme) => ipcRenderer.send('set-theme', theme),
+  openExternal: (url) => ipcRenderer.send('open-external', url),
+
   // Get settings
   getSettings: () => ipcRenderer.invoke('get-settings'),
 
@@ -55,5 +61,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   },
   onTextModeSync: (callback) => {
     ipcRenderer.on('text-mode-sync', (event, mode) => callback(mode));
+  },
+  onThemeSync: (callback) => {
+    ipcRenderer.on('theme-sync', (event, theme) => callback(theme));
   }
 });

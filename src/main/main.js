@@ -3,6 +3,7 @@ const path = require('path');
 
 let overlayWindow = null;
 let toolbarWindow = null;
+let settingsWindow = null;
 let tray = null;
 let isDrawingEnabled = false; // Disabled until a tool is selected
 let currentSettings = {
@@ -111,6 +112,53 @@ function setToolbarContentProtection(enabled) {
   }
 }
 
+function createSettingsWindow() {
+  if (settingsWindow) {
+    settingsWindow.focus();
+    return;
+  }
+
+  settingsWindow = new BrowserWindow({
+    width: 500,
+    height: 380,
+    transparent: true,
+    frame: false,
+    alwaysOnTop: true,
+    skipTaskbar: false,
+    resizable: false,
+    hasShadow: true,
+    webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true,
+      preload: path.join(__dirname, 'preload.js')
+    }
+  });
+
+  // Center on screen
+  const primaryDisplay = screen.getPrimaryDisplay();
+  const { width, height } = primaryDisplay.bounds;
+  settingsWindow.setPosition(
+    Math.floor(width / 2 - 250),
+    Math.floor(height / 2 - 190)
+  );
+
+  // Set always on top like toolbar
+  if (isMac) {
+    settingsWindow.setAlwaysOnTop(true, 'screen-saver');
+    settingsWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
+  } else if (isWindows) {
+    settingsWindow.setAlwaysOnTop(true, 'screen-saver');
+  } else {
+    settingsWindow.setAlwaysOnTop(true, 'pop-up-menu');
+  }
+
+  settingsWindow.loadFile(path.join(__dirname, '../renderer/settings/index.html'));
+
+  settingsWindow.on('closed', () => {
+    settingsWindow = null;
+  });
+}
+
 function setupIPC() {
   // Tool selection from toolbar
   ipcMain.on('tool-selected', (event, tool) => {
@@ -204,6 +252,35 @@ function setupIPC() {
   // Quit app
   ipcMain.on('quit-app', () => {
     app.quit();
+  });
+
+  // Open settings window
+  ipcMain.on('open-settings', () => {
+    createSettingsWindow();
+  });
+
+  // Close settings window
+  ipcMain.on('close-settings-window', () => {
+    if (settingsWindow) {
+      settingsWindow.close();
+    }
+  });
+
+  // Set theme (sync across all windows)
+  ipcMain.on('set-theme', (event, theme) => {
+    // Sync to toolbar
+    if (toolbarWindow && toolbarWindow.webContents !== event.sender) {
+      toolbarWindow.webContents.send('theme-sync', theme);
+    }
+    // Sync to settings window
+    if (settingsWindow && settingsWindow.webContents !== event.sender) {
+      settingsWindow.webContents.send('theme-sync', theme);
+    }
+  });
+
+  // Open external URL
+  ipcMain.on('open-external', (event, url) => {
+    require('electron').shell.openExternal(url);
   });
 }
 

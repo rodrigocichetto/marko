@@ -17,6 +17,9 @@ A cross-platform desktop application for drawing annotations directly on top of 
 - **Line** - Draw straight lines
 - **Laser Pointer** - Red dot pointer for presentations
 - **Eraser** - Erase annotations
+- **Text** - Add text annotations in two modes:
+  - **Standard** - Text in the selected color
+  - **Highlight** - Text with contrasting background for better visibility
 
 ### Toolbar Features
 
@@ -26,6 +29,19 @@ A cross-platform desktop application for drawing annotations directly on top of 
 - Color palette with 6 colors (Red, Yellow, Green, Blue, White, Black)
 - 3 stroke width options (Thin, Medium, Thick)
 - Clear canvas button
+- Settings button to access preferences
+
+### Appearance
+
+- **Light**, **Dark**, and **System** theme options
+- Automatically follows your operating system preference when set to System
+- Theme syncs across all windows
+
+### Settings Window
+
+- Accessible via the gear icon on the toolbar
+- **Settings page** - Configure theme preferences
+- **About page** - View app information, version, author, and website links
 
 ### Keyboard Shortcuts
 
@@ -38,10 +54,11 @@ A cross-platform desktop application for drawing annotations directly on top of 
 | `Ctrl+Shift+L` | Line tool                 |
 | `Ctrl+Shift+I` | Laser Pointer             |
 | `Ctrl+Shift+E` | Eraser tool               |
+| `Ctrl+Shift+T` | Text tool (Standard)      |
+| `Ctrl+Shift+Y` | Text tool (Highlight)     |
 | `Ctrl+Shift+D` | Toggle drawing mode       |
 | `Ctrl+Shift+C` | Clear canvas              |
 | `Ctrl+Shift+H` | Toggle overlay visibility |
-| `Ctrl+Shift+T` | Show/focus toolbar        |
 | `Ctrl+Z`       | Undo                      |
 | `Ctrl+Shift+Z` | Redo                      |
 

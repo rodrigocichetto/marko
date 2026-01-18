@@ -5,6 +5,39 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Screen Annotator - Toolbar</title>
   <style>
+    :root {
+      /* Dark theme (default) */
+      --toolbar-bg: rgba(40, 40, 40, 0.95);
+      --toolbar-border: transparent;
+      --btn-color: rgba(255, 255, 255, 0.8);
+      --btn-hover-bg: rgba(255, 255, 255, 0.1);
+      --btn-active-bg: rgba(255, 255, 255, 0.2);
+      --btn-active-color: #fff;
+      --divider-color: rgba(255, 255, 255, 0.2);
+      --stroke-indicator-bg: rgba(255, 255, 255, 0.8);
+      --tooltip-bg: rgba(0, 0, 0, 0.95);
+      --tooltip-color: #fff;
+      --color-btn-border: #fff;
+      --color-btn-shadow: rgba(255, 255, 255, 0.3);
+      --toggle-inactive: rgba(255, 255, 255, 0.6);
+    }
+
+    [data-theme="light"] {
+      --toolbar-bg: rgba(255, 255, 255, 0.95);
+      --toolbar-border: rgba(0, 0, 0, 0.1);
+      --btn-color: rgba(0, 0, 0, 0.7);
+      --btn-hover-bg: rgba(0, 0, 0, 0.08);
+      --btn-active-bg: rgba(0, 0, 0, 0.12);
+      --btn-active-color: #000;
+      --divider-color: rgba(0, 0, 0, 0.15);
+      --stroke-indicator-bg: rgba(0, 0, 0, 0.7);
+      --tooltip-bg: rgba(50, 50, 50, 0.95);
+      --tooltip-color: #fff;
+      --color-btn-border: #333;
+      --color-btn-shadow: rgba(0, 0, 0, 0.2);
+      --toggle-inactive: rgba(0, 0, 0, 0.5);
+    }
+
     * {
       margin: 0;
       padding: 0;
@@ -34,11 +67,13 @@
       display: flex;
       align-items: center;
       gap: 4px;
-      background: rgba(40, 40, 40, 0.95);
+      background: var(--toolbar-bg);
+      border: 1px solid var(--toolbar-border);
       border-radius: 12px;
       padding: 8px 12px;
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
+      transition: background 0.2s ease, border-color 0.2s ease;
     }
 
     .toolbar-section {
@@ -50,8 +85,9 @@
     .divider {
       width: 1px;
       height: 28px;
-      background: rgba(255, 255, 255, 0.2);
+      background: var(--divider-color);
       margin: 0 6px;
+      transition: background 0.2s ease;
     }
 
     .tool-btn {
@@ -65,16 +101,16 @@
       align-items: center;
       justify-content: center;
       transition: all 0.15s ease;
-      color: rgba(255, 255, 255, 0.8);
+      color: var(--btn-color);
     }
 
     .tool-btn:hover {
-      background: rgba(255, 255, 255, 0.1);
+      background: var(--btn-hover-bg);
     }
 
     .tool-btn.active {
-      background: rgba(255, 255, 255, 0.2);
-      color: #fff;
+      background: var(--btn-active-bg);
+      color: var(--btn-active-color);
     }
 
     .tool-btn svg {
@@ -98,8 +134,8 @@
     }
 
     .color-btn.active {
-      border-color: #fff;
-      box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
+      border-color: var(--color-btn-border);
+      box-shadow: 0 0 0 2px var(--color-btn-shadow);
     }
 
     .stroke-btn {
@@ -116,16 +152,18 @@
     }
 
     .stroke-btn:hover {
-      background: rgba(255, 255, 255, 0.1);
+      background: var(--btn-hover-bg);
     }
 
     .stroke-btn.active {
-      background: rgba(255, 255, 255, 0.2);
+      background: var(--btn-active-bg);
     }
 
     .stroke-btn .stroke-indicator {
-      background: rgba(255, 255, 255, 0.8);
+      display: block;
+      background: var(--stroke-indicator-bg);
       border-radius: 50%;
+      transition: background 0.2s ease;
     }
 
     .action-btn {
@@ -139,12 +177,12 @@
       align-items: center;
       justify-content: center;
       transition: all 0.15s ease;
-      color: rgba(255, 255, 255, 0.7);
+      color: var(--btn-color);
     }
 
     .action-btn:hover {
-      background: rgba(255, 255, 255, 0.1);
-      color: #fff;
+      background: var(--btn-hover-bg);
+      color: var(--btn-active-color);
     }
 
     .action-btn svg {
@@ -165,11 +203,11 @@
       align-items: center;
       justify-content: center;
       transition: all 0.15s ease;
-      color: rgba(255, 255, 255, 0.6);
+      color: var(--toggle-inactive);
     }
 
     .toggle-btn:hover {
-      background: rgba(255, 255, 255, 0.1);
+      background: var(--btn-hover-bg);
     }
 
     .toggle-btn.active {
@@ -222,8 +260,8 @@
       top: -32px;
       left: 50%;
       transform: translateX(-50%);
-      background: rgba(0, 0, 0, 0.95);
-      color: #fff;
+      background: var(--tooltip-bg);
+      color: var(--tooltip-color);
       padding: 5px 10px;
       border-radius: 6px;
       font-size: 12px;
@@ -239,10 +277,11 @@
       left: 50%;
       transform: translateX(-50%);
       border: 5px solid transparent;
-      border-top-color: rgba(0, 0, 0, 0.95);
+      border-top-color: var(--tooltip-bg);
       z-index: 1000;
       pointer-events: none;
     }
+
   </style>
 </head>
 <body>
@@ -365,6 +404,12 @@
             <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
             <circle cx="12" cy="12" r="3"/>
             <line x1="1" y1="1" x2="23" y2="23" stroke-width="2"/>
+          </svg>
+        </button>
+        <button class="toggle-btn" id="settings-btn" data-tooltip="Settings">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
           </svg>
         </button>
       </div>
